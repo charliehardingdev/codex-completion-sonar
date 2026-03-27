@@ -73,15 +73,15 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private func configureStatusItem() {
         if let button = statusItem.button {
             button.image = makeStatusImage()
-            button.toolTip = "Completion Sonar"
+            button.toolTip = "Codex Completion Sonar"
         }
 
         let menu = NSMenu()
-        let titleItem = NSMenuItem(title: "Completion Sonar", action: nil, keyEquivalent: "")
+        let titleItem = NSMenuItem(title: "Codex Completion Sonar", action: nil, keyEquivalent: "")
         titleItem.isEnabled = false
         menu.addItem(titleItem)
 
-        let aboutItem = NSMenuItem(title: "About Completion Sonar", action: #selector(showAbout), keyEquivalent: "")
+        let aboutItem = NSMenuItem(title: "About Codex Completion Sonar", action: #selector(showAbout), keyEquivalent: "")
         aboutItem.target = self
         menu.addItem(aboutItem)
 
@@ -108,7 +108,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
         menu.addItem(NSMenuItem.separator())
 
-        let quitItem = NSMenuItem(title: "Quit Completion Sonar", action: #selector(quitApp), keyEquivalent: "q")
+        let quitItem = NSMenuItem(title: "Quit Codex Completion Sonar", action: #selector(quitApp), keyEquivalent: "q")
         quitItem.target = self
         menu.addItem(quitItem)
 
@@ -410,11 +410,13 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     @objc private func showAbout() {
         let alert = NSAlert()
-        alert.messageText = "Completion Sonar"
+        alert.messageText = "Codex Completion Sonar"
         alert.informativeText = """
         A standalone menu bar utility for Codex completion sounds.
 
         It watches final Codex replies, lets you switch between custom presets, and stores volume and sound selection locally in ~/.codex/completion_sound.
+
+        The included sounds are generated with code: AI-made sounds for an AI workflow.
         """
         alert.addButton(withTitle: "OK")
         alert.runModal()

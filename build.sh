@@ -1,7 +1,7 @@
 #!/bin/zsh
 set -euo pipefail
 
-APP_NAME="CompletionSonar"
+APP_NAME="CodexCompletionSonar"
 SRC_DIR="$(cd "$(dirname "$0")" && pwd)"
 APP_DIR="$HOME/Applications/${APP_NAME}.app"
 CONTENTS_DIR="${APP_DIR}/Contents"

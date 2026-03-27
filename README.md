@@ -1,15 +1,17 @@
-# Completion Sonar
+# Codex Completion Sonar
 
-Completion Sonar is a lightweight macOS menu bar utility that plays a custom sound when Codex finishes a reply.
+Codex Completion Sonar is a lightweight macOS menu bar utility that plays a custom sound when Codex finishes a reply.
 
 It is designed for people who run Codex alongside music, multiple desktops, or long-running tasks and want a fast audible cue when the final answer lands.
+
+All included presets are generated with code: AI-made sounds for an AI workflow.
 
 ## Features
 
 - Menu bar utility with a compact Matrix-inspired icon
 - Detects final Codex replies from the local Codex log database
 - Built-in volume slider
-- Built-in sound switcher with ten generated presets
+- Built-in sound switcher with ten code-generated presets
 - Open-at-login friendly
 - Standalone macOS app bundle build with Swift and AppKit
 
@@ -28,7 +30,7 @@ It is designed for people who run Codex alongside music, multiple desktops, or l
 This builds:
 
 ```text
-~/Applications/CompletionSonar.app
+~/Applications/CodexCompletionSonar.app
 ```
 
 ## Install
@@ -57,6 +59,8 @@ To regenerate them:
 ```bash
 ./generate_presets.sh
 ```
+
+The included sounds are procedural presets generated in code rather than sourced from sample packs.
 
 ## Repository Layout
 
