@@ -17,11 +17,18 @@ private let currentSoundFile = soundDir.appendingPathComponent("current_sound.tx
 private let pollInterval: TimeInterval = 2.0
 private let minPlayGapSeconds: TimeInterval = 0.75
 private let mergeCompletionSignalsSeconds: Double = 3.0
+private let legacySuppressionWindowSeconds: Double = 10.0
 private let soundCandidates = ["sound.mp3", "sound.wav", "sound.m4a", "sound.aiff", "sound.caf"]
+
+private enum CompletionEventKind {
+    case finalAnswer
+    case legacyTurnCompleted
+}
 
 private struct CompletionEvent {
     let id: Int64
     let eventTime: Double
+    let kind: CompletionEventKind
 }
 
 private struct SoundPreset {
@@ -48,6 +55,7 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
     private var lastSeenID: Int64 = 0
     private var lastPlayedAtMonotonic: TimeInterval = 0
     private var lastCompletionSignalAt: Double = 0
+    private var lastFinalAnswerEventTime: Double = 0
     private var menu: NSMenu?
     private var volumeValueLabel: NSTextField?
     private var volumeSlider: NSSlider?
@@ -236,11 +244,22 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
             guard !events.isEmpty else { return }
 
             for event in events {
+                if event.kind == .legacyTurnCompleted,
+                   lastFinalAnswerEventTime > 0,
+                   event.eventTime - lastFinalAnswerEventTime <= legacySuppressionWindowSeconds {
+                    lastCompletionSignalAt = event.eventTime
+                    lastSeenID = event.id
+                    continue
+                }
+
                 let now = ProcessInfo.processInfo.systemUptime
                 if event.eventTime - lastCompletionSignalAt >= mergeCompletionSignalsSeconds,
                    now - lastPlayedAtMonotonic >= minPlayGapSeconds {
                     playSound()
                     lastPlayedAtMonotonic = now
+                }
+                if event.kind == .finalAnswer {
+                    lastFinalAnswerEventTime = event.eventTime
                 }
                 lastCompletionSignalAt = event.eventTime
                 lastSeenID = event.id
@@ -276,17 +295,20 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
 
     private func fetchCompletionEvents(in db: OpaquePointer, afterID: Int64) -> [CompletionEvent] {
         let sql = """
-        select id, ts + (ts_nanos / 1000000000.0) as event_time
+        select
+            id,
+            ts + (ts_nanos / 1000000000.0) as event_time,
+            case
+                when target = 'log' then 'final_answer'
+                else 'legacy_turn_completed'
+            end as event_kind
         from logs
         where id > ?
           and (
                 (
                     target = 'log'
                     and feedback_log_body like 'Received message {"type":"response.output_item.done"%'
-                    and (
-                        feedback_log_body like '%"phase":"final_answer"%'
-                        or feedback_log_body like '%"output_index":0%'
-                    )
+                    and feedback_log_body like '%"phase":"final_answer"%'
                     and feedback_log_body like '%"role":"assistant"%'
                     and feedback_log_body like '%"type":"message"%'
                 )
@@ -310,7 +332,9 @@ final class AppDelegate: NSObject, NSApplicationDelegate {
         while sqlite3_step(statement) == SQLITE_ROW {
             let id = sqlite3_column_int64(statement, 0)
             let eventTime = sqlite3_column_double(statement, 1)
-            results.append(CompletionEvent(id: id, eventTime: eventTime))
+            let rawKind = sqlite3_column_text(statement, 2).flatMap { String(cString: $0) } ?? "legacy_turn_completed"
+            let kind: CompletionEventKind = rawKind == "final_answer" ? .finalAnswer : .legacyTurnCompleted
+            results.append(CompletionEvent(id: id, eventTime: eventTime, kind: kind))
         }
         return results
     }

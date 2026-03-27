@@ -2,8 +2,9 @@
 set -euo pipefail
 
 APP_NAME="CodexCompletionSonar"
+APP_BUNDLE_NAME="Codex Completion Sonar"
 SRC_DIR="$(cd "$(dirname "$0")" && pwd)"
-APP_DIR="$HOME/Applications/${APP_NAME}.app"
+APP_DIR="$HOME/Applications/${APP_BUNDLE_NAME}.app"
 CONTENTS_DIR="${APP_DIR}/Contents"
 MACOS_DIR="${CONTENTS_DIR}/MacOS"
 RESOURCES_DIR="${CONTENTS_DIR}/Resources"

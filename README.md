@@ -35,6 +35,10 @@ This builds:
 
 ## Install
 
+If you just want the app, download `Codex Completion Sonar.app.zip` from the repository, unzip it, and open `Codex Completion Sonar.app`.
+
+If you want to build and install from source:
+
 ```bash
 ./install.sh
 ```

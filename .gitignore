@@ -3,3 +3,4 @@ AppIcon.iconset/
 *.icns
 *.app/
 build/
+dist/
